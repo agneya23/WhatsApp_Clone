@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta id="user_data" data-username="{{ username }}">
+    <title>WhatsApp Clone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <link rel="icon" href="data:;base64,=">
+</head>
+
+<body>
+    <div id="all">
+        <div id="chat_list">
+            <div id="bar">
+                <div id="up">
+                    <p>User: {{ username }}</p>
+                    <button id="logout"><a href="/whatsapp_clone/logout/">Logout</a></button>
+                    <button id="new_chat" onclick="chatpopFn()">New Chat</button>
+                    <button id="new_group" onclick="grouppopFn()">New Group</button>
+                </div>
+                <div id="down">
+                    <form action="" method="post" id="chat-search-form">
+                        <div id="chat-search">
+                            <i class="fa-solid fa-magnifying-glass fa" style="color: #1f1f21bd;"></i>
+                            <input type="text" name="" id="chat-search-bar" placeholder="  Search chats">
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <ul id="scroll">
+                {% for chat, hash in combined_list %}
+                    <button class="chat">
+                        <p id="CHAT_NAME" >{{ chat }}</p>
+                        <p id="CHAT_HASH">{{ hash }}</p>
+                    </button>
+                {% endfor %}
+            </ul>
+        </div>
+        <div id="chat_history">
+            <img src="{% static 'whatsapp-icon.png' %}" alt="" id="image">
+        </div>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+
+        <div id="overlay"></div>
+        <form action="" method="post" id="new_chat_popup">
+            {% csrf_token %}
+            <p>Enter username:</p>
+            <input type="text" name="" id="new_chat_username">
+            <br>
+            <br>
+            <input type="button" name="submit" value="Close" onclick="closechatFn();"/>
+            <input type="button" name="submit" value="Start chat" onclick="newchatFn();"/>
+        </form>
+
+        <form action="" method="post" id="new_group_popup">
+            {% csrf_token %}
+            <p>Group name:</p>
+            <input type="text" name="" id="new_group_groupname">
+            <p>Members:</p>
+            <input type="text" name="" id="new_group_members">
+            <br>
+            <br>
+            <input type="button" name="submit" value="Close" onclick="closegroupFn();"/>
+            <input type="button" name="submit" value="Create group" onclick="newgroupFn();"/>
+        </div>
+    </div>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.6/ejs.min.js"></script>
+    {% load static %}
+    <script src="{% static 'index.js' %}"></script>
+</body>
+
+</html>

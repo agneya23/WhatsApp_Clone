@@ -1,0 +1,1 @@
+"mongodb+srv://agneya23:Brunoduma0*@whatsappclone.gpxwn9p.mongodb.net/?retryWrites=true&w=majority&appName=WhatsAppClone"

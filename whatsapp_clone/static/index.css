@@ -1,0 +1,225 @@
+body {
+    background-color: #F0F2F5;
+    margin: 0;
+}
+
+#all {
+    display: flex;
+    height: 100vh;
+    background-color: #F0F2F5;
+}
+
+#bar {
+    height: 14vh;
+    background-color: white;
+}
+
+#up {
+    height: 55%;
+    background-color: #F0F2F5;
+    display: flex;
+    align-items: center;
+    justify-items: normal;
+}
+
+#scroll {
+    height: 86vh;
+    overflow-y: scroll;
+    margin: 0;
+    padding: 0px;
+}
+
+#message-scroll {
+    height: 84.3vh;
+    overflow-y: scroll;
+    margin: 0;
+    padding: 0px;
+}
+
+#chat_list {
+    height: 99.8vh;
+    width: 30%;
+    background-color: white;
+    /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); */
+    border-right: 0.1px;
+    border-color: rgb(224, 223, 223);
+    border-style: solid;
+    border-top: 0;
+}
+
+#chat_history {
+    height: 99.8vh;
+    width: 70%;
+    background-color: #F0F2F5;
+}
+
+#image {
+    margin-top: 17%;
+    width: 320px;
+    height: 185px;
+    position: absolute;
+    left: 50%;
+}
+
+.chat {
+    width: 100%;
+    height: 75px;
+    border-left: 0px;
+    border-right: 0px;
+    border-width: 0.5px;
+    background-color: white;
+}
+
+.chat:hover {
+    background-color: rgba(225, 225, 225, 0.366);
+}
+
+.chat:focus {
+    background-color: #F0F2F5;
+}
+
+#upbar {
+    height: 7.7vh;
+    width: 100%;
+    background-color: #F0F2F5;
+}
+
+#messages {
+    background-color: #EFEAE2;
+    height: 84.3vh;
+}
+
+#text-area {
+    height: 8vh;
+    width: 100%;
+    /* margin-top: 500px; */
+    position: fixed;
+    background-color: #F0F2F5;
+}
+
+#message_sender {
+    width: 100%;
+    height: 25px;
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 0px;
+    border-width: 1px;
+    background-color: #EFEAE2;
+}
+
+#message {
+    width: 100%;
+    height: 25px;
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 0px;
+    border-width: 1px;
+    background-color: #EFEAE2;
+}
+
+#write-message {
+    height: 40px;
+    width: 830px;
+    border: none;
+    border-radius: 8px;
+    margin-left: 6.4%;
+    margin-top: 8px;
+    outline: none;
+}
+
+#chat-search {
+    height: 35px;
+    width: 380px;
+    border: none;
+    border-radius: 8px;
+    margin-left: 2.5%;
+    margin-top: 6px;
+    background-color: #F0F2F5;
+}
+
+#chat-search-bar {
+    height: 85%;
+    width: 90%;
+    border: none;
+    margin-left: 10px;
+    background-color: #F0F2F5;
+    outline: none;
+}
+
+#new_chat_popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-radius: 8px;
+}
+
+#new_group_popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-radius: 8px;
+}
+
+#overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.377);
+    z-index: 999;
+}
+
+#CHAT_HASH {
+    opacity: 0;
+    margin: 0;
+    border: 0;
+}
+
+#CHAT_NAME {
+    font-size: large;
+    /* font-weight: bold; */
+    margin: 0;
+    border: 0;
+}
+
+.chat-message {
+    display: inline-block;
+    background-color: white; /* Light grey background */
+    border-radius: 25px; /* Rounded corners */
+    padding: 10px 20px; /* Padding inside the pill */
+    margin: 5px 10px; /* Space between messages */
+    max-width: 80%; /* Limit the width of the message */
+    word-wrap: break-word; /* Ensure long messages wrap */
+}
+   
+#message_sender {
+    background-color: white;
+    font-weight: bold; /* Make the username bold */
+    color: #333; /* Dark grey text */
+}
+
+#message {
+    background-color: white;
+    color: #666; /* Lighter grey text */
+}
+
+#chatname {
+    font-size: 25px;
+    margin: 10px;
+}

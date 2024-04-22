@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <h2>Register</h2>
+    <form method="post" action="" novalidate>
+        {% csrf_token %}
+        <p>
+            {{ form.username.label }} <br>
+            {{ form.username }} <br>
+            {% if form.username.errors %}
+                {% for error in form.username.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            {% endif %}
+        </p>
+        <p>
+            {{ form.email.label }} <br> 
+            {{ form.email }} <br>
+            {% if form.email.errors %}
+                {% for error in form.email.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            {% endif %}
+        </p>
+        <p>
+            {{ form.password.label }} <br> 
+            {{ form.password }} <br>
+            {% if form.password.errors %}
+                {% for error in form.password.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            {% endif %}
+        </p>
+        <p>
+            {{ form.confirm_password.label }} <br>
+            {{ form.confirm_password }} <br>
+            {% if form.confirm_password.errors %}
+                {% for error in form.confirm_password.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            {% endif %}
+        </p>
+        <input type="submit">
+        <p>Already have an account? <a href="/whatsapp_clone/login/">Login</a></p>
+    </form>
+</body>
+</html>
