@@ -1,15 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
+<div id="upbar">
+    <div id="upbar-div">
+        <i class="fa-solid fa-user-group fa-lg" id="icon"></i>
+    </div>
+    <span id="chatname"><%= chat_name %></span>
+</div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat History</title>
-</head>
+<div id="messages">
+    <ul id="message-scroll">
+        <% for (let message of messagelist) { %>
+            <% if (username === message[0]) { %>
+                <div class="chat-message" style="margin-left: auto;background-color:#D9FDD3;text-align:right;margin-right:20px">
+                    <span id="message_sender" style="background-color:#D9FDD3;display:block;text-align: left;height: fit-content;margin-bottom:3px">~<%= message[0] %></span>
+                    <span id="message" style="background-color:#D9FDD3;display:block;text-align: left; height: fit-content"><%= message[1] %></span>
+                </div>
+            <% } else { %>
+                <div class="chat-message">
+                    <span id="message_sender">~<%= message[0] %></span>
+                    <br>
+                    <span id="message"><%= message[1] %></span>
+                </div>
+            <% } %>
+        <% } %>
+    </ul>
+</div>
 
-<body>
-    <!-- {% from 'socketio.py' import * %} -->
-    <p>Hello there</p>
-</body>
-
-</html>
+<button id="plus-btn" type="button" onclick="listContainerFn()"><i class="fa-solid fa-plus" id="plus"></i></button>
+<div id="listContainer">
+    <input id='fileid' type='file' hidden/>
+    <button class="listContainerBtn" onclick="listContainerBtnFn()"><i class="fa-regular fa-file"></i> <span>&ensp;Document</span></button>
+    <button class="listContainerBtn" onclick="listContainerBtnFn()"><i class="fa-solid fa-photo-film"></i>  <span>Photos & Videos</span></button>
+</div>
+<input type="text" name="" id="write-message" placeholder="  Type a message">
+<input id="send" type="button" name="submit" value="Send" onclick="submit_form();">

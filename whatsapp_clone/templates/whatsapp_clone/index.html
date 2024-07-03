@@ -18,15 +18,19 @@
         <div id="chat_list">
             <div id="bar">
                 <div id="up">
-                    <p>User: {{ username }}</p>
-                    <button id="logout"><a href="/whatsapp_clone/logout/">Logout</a></button>
-                    <button id="new_chat" onclick="chatpopFn()">New Chat</button>
-                    <button id="new_group" onclick="grouppopFn()">New Group</button>
+                    <div id="up1">
+                        <button id="profile_button" onclick="">{{ username }}</button>
+                    </div>
+                    <div id="up2">
+                        <button id="new_chat" onclick="chatpopFn()"><i class="fa-regular fa-comment fa-2x"></i></button>
+                        <button id="new_group" onclick="grouppopFn()"><i class="fa-regular fa-comments fa-2x"></i></button>
+                        <button id="logout"><a href="/whatsapp_clone/logout/"><i class="fa-solid fa-arrow-right-from-bracket fa-2x"></i></a></button>
+                    </div>
                 </div>
                 <div id="down">
                     <form action="" method="post" id="chat-search-form">
                         <div id="chat-search">
-                            <i class="fa-solid fa-magnifying-glass fa" style="color: #1f1f21bd;"></i>
+                            <i class="fa-solid fa-magnifying-glass fa" style="color: #1f1f21bd; margin-left: 5px;"></i>
                             <input type="text" name="" id="chat-search-bar" placeholder="  Search chats">
                         </div>
                     </form>
@@ -35,8 +39,13 @@
             <ul id="scroll">
                 {% for chat, hash in combined_list %}
                     <button class="chat">
-                        <p id="CHAT_NAME" >{{ chat }}</p>
-                        <p id="CHAT_HASH">{{ hash }}</p>
+                        <div class="chat-div">
+                            <div class="chat-div-div">
+                                <i class="fa-solid fa-user-group fa-lg" id="icon" style="margin: 2px;"></i>
+                            </div>
+                            <p id="CHAT_NAME" style="margin-left: 10px;">{{ chat }}</p>
+                            <p id="CHAT_HASH" style="">{{ hash }}</p>
+                        </div>
                     </button>
                 {% endfor %}
             </ul>
@@ -56,24 +65,23 @@
         <div id="overlay"></div>
         <form action="" method="post" id="new_chat_popup">
             {% csrf_token %}
-            <p>Enter username:</p>
-            <input type="text" name="" id="new_chat_username">
-            <br>
-            <br>
-            <input type="button" name="submit" value="Close" onclick="closechatFn();"/>
-            <input type="button" name="submit" value="Start chat" onclick="newchatFn();"/>
+            <p style="margin-block-start: 5px;margin-block-end: 0px;font-size: 140%;">New Chat</p>
+            <p>Username: <input type="text" name="" id="new_chat_username"></p>
+            <div id="chat_popup_btns">
+                <input id="close" type="button" name="submit" value="Close" onclick="closechatFn();"/>
+                <input id="submit" type="button" name="submit" value="Start chat" onclick="newchatFn();"/>
+            </div>
         </form>
 
         <form action="" method="post" id="new_group_popup">
             {% csrf_token %}
-            <p>Group name:</p>
-            <input type="text" name="" id="new_group_groupname">
-            <p>Members:</p>
-            <input type="text" name="" id="new_group_members">
-            <br>
-            <br>
-            <input type="button" name="submit" value="Close" onclick="closegroupFn();"/>
-            <input type="button" name="submit" value="Create group" onclick="newgroupFn();"/>
+            <p style="margin-block-start: 5px;margin-block-end: 0px;font-size: 140%">New Group</p>
+            <p>Group name: <input type="text" name="" id="new_group_groupname"></p> 
+            <p>Members: <input type="text" name="" id="new_group_members" style="margin-left: 21px;"></p>
+            <div id="group_popup_btns">
+                <input id="close" type="button" name="submit" value="Close" onclick="closegroupFn();"/>
+                <input id="submit" type="button" name="submit" value="Create group" onclick="newgroupFn();"/>
+            </div>
         </div>
     </div>
 

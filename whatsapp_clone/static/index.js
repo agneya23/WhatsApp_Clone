@@ -1,25 +1,43 @@
 let template = `
 <div id="upbar">
+    <div id="upbar-div">
+        <i class="fa-solid fa-user-group fa-lg" id="icon"></i>
+    </div>
     <span id="chatname"><%= chat_name %></span>
 </div>
 
 <div id="messages">
     <ul id="message-scroll">
         <% for (let message of messagelist) { %>
-            <div class="chat-message">
-                <span id="message_sender"><%= message[0] %></span>
-                <br>
-                <span id="message"><%= message[1] %></span>
-            </div>
-            <br>
+            <% if (username === message[0]) { %>
+                <div class="chat-message" style="margin-left: auto;background-color:#D9FDD3;text-align:right;margin-right:20px">
+                    <span id="message_sender" style="background-color:#D9FDD3;display:block;text-align: left;height: fit-content;margin-bottom:3px">~<%= message[0] %></span>
+                    <span id="message" style="background-color:#D9FDD3;display:block;text-align: left; height: fit-content"><%= message[1] %></span>
+                </div>
+            <% } else { %>
+                <div class="chat-message">
+                    <span id="message_sender">~<%= message[0] %></span>
+                    <br>
+                    <span id="message"><%= message[1] %></span>
+                </div>
+            <% } %>
         <% } %>
     </ul>
 </div>
 
-<form action="" method="post" id="message-form">
-    <input type="text" name="" id="write-message" placeholder="  Type a message">
-    <input type="button" name="submit" value="Send" onclick="submit_form();"/>
+<button id="plus-btn" type="button" onclick="listContainerFn()"><i class="fa-solid fa-plus" id="plus"></i></button>
+
+<form action="" enctype="multipart/form-data">
+    <input id='fileid' type='file' name='file' multiple hidden/>
 </form>
+
+<div id="listContainer">
+    <button class="listContainerBtn" onclick="listContainerBtnFn()"><i class="fa-regular fa-file"></i> <span>&ensp;Document</span></button>
+    <button class="listContainerBtn" onclick="listContainerBtnFn()"><i class="fa-solid fa-photo-film"></i>  <span>Photos & Videos</span></button>
+</div>
+
+<input type="text" name="" id="write-message" placeholder="  Type a message">
+<input id="send" type="button" name="submit" value="Send" onclick="submit_form();">
 `
 
 var chat_lst = document.querySelectorAll(".chat")
@@ -32,7 +50,14 @@ let new_chat_popup = document.getElementById("new_chat_popup")
 let new_group_popup = document.getElementById("new_group_popup")
 var username = document.getElementById('user_data').getAttribute('data-username')
 let scroll = document.getElementById("scroll")
+window.click_count = false
 var message_list = []
+var selectedFileList = null
+
+function scrollDown() {
+    const messages_scroll = document.querySelector('#message-scroll');
+    messages_scroll.scrollTop = messages_scroll.scrollHeight - messages_scroll.clientHeight;
+  }
 
 function chatpopFn() {
     document.getElementById('overlay').style.display = 'block'
@@ -106,8 +131,16 @@ async function fetchFn(url, data) {
 
 document.addEventListener("keydown", (event) => {
     if (event.key == "Escape") {
+        window.click_count = false
         window.chatSocket.close()
         chat_history.innerHTML = ejs.render(default_template)
+    }
+})
+
+document.addEventListener("keydown2", (event) => {
+    if (event.key == "Escape") {
+        window.click_count = false
+        window.chatSocket.close()
     }
 })
 
@@ -115,9 +148,43 @@ for (chat of chat_lst) {
     register_event_listener(chat)
 }
 
+
+function plus_btnFn(plus_btn) {
+    console.log("Hello")
+    plus_btn.addEventListener("click", () => {
+        plus_btn.style.backgroundColor = "#dce1e9";
+    })
+}
+
+function listContainerFn() {
+    let listContainer = document.getElementById('listContainer');
+    if (listContainer.style.display === "none") {
+        listContainer.style.display = "flex";
+        listContainer.style.flexWrap = "wrap";
+    } else {
+        listContainer.style.display = "none";
+    }
+}
+
+async function getBinaryData(selectedFileList) {
+    let arrayBufferData = []
+    for (let selectedFile of selectedFileList) {
+        let binary_data = await selectedFile.arrayBuffer()
+        arrayBufferData.push(binary_data)
+    }
+    return new Promise((resolve, reject) => {
+        resolve(arrayBufferData)
+    })
+}
+
 function register_event_listener(chat) {
     chat.addEventListener("click", () => {
+        if (window.click_count !== chat.innerText.split("\n\n")[1]) {
+            document.dispatchEvent(new KeyboardEvent('keydown2', {'key': 'Escape'}))
+        }
+        chat.style.backgroundColor = "#F0F2F5"
         window.CHAT_HASH = chat.innerText.split("\n\n")[1]
+        window.click_count = window.CHAT_HASH
         window.chatSocket = new WebSocket(
             "ws://"
             + window.location.host
@@ -126,37 +193,99 @@ function register_event_listener(chat) {
         )
         fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/",
                         data={'chat_hash': CHAT_HASH}).then((message_list) => {
-                            chat_history.innerHTML = ejs.render(template, {chat_name: chat.innerText.split("\n\n")[0], messagelist: message_list})
+                            chat_history.innerHTML = ejs.render(template, {chat_name: chat.innerText.split("\n\n")[0], messagelist: message_list, username:username})
+                            scrollDown()
                         })
+        // let plus_btn = document.getElementById("plus-btn")
+        // plus_btnFn(plus_btn)
         window.chatSocket.onmessage = function(e) {
             fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/",
                         data={'chat_hash': CHAT_HASH}).then((message_list) => {
-                            chat_history.innerHTML = ejs.render(template, {chat_name: chat.innerText.split("\n\n")[0], messagelist: message_list})
+                            chat_history.innerHTML = ejs.render(template, {chat_name: chat.innerText.split("\n\n")[0], messagelist: message_list, username:username})
+                            scrollDown()
                         })
         }
         window.chatSocket.onclose = function(e) {
+            chat.style.backgroundColor = "#ffffff"
             console.error("Chat socket closed!")
+        }
+    })
+    chat.addEventListener("mouseover", () => {
+        if (window.click_count === chat.innerText.split("\n\n")[1]) {
+            chat.style.backgroundColor = "#F0F2F5"
+        }
+        else {
+            chat.style.backgroundColor = "#e1e1e15d"
+        }
+    })
+    chat.addEventListener("mouseout", () => {
+        if (window.click_count === chat.innerText.split("\n\n")[1]) {
+            chat.style.backgroundColor = "#F0F2F5"
+        }
+        else {
+            chat.style.backgroundColor = "#ffffff"
         }
     })
 }
 
-async function fetchAPIMessages(url, data) {
-    let csrftoken = getCookie('csrftoken')
-    const response = await fetch(url, {method: "POST", 
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRFToken': csrftoken
-                                },
-                                body: JSON.stringify(data)})
-    const responseData = await response.json()
-    let MESSAGE_LIST = responseData['message_list']
-    return MESSAGE_LIST
+function handleFiles() {
+    let selectedFileList = this.files
+    let formData = new FormData()
+    for (let selectedFile of selectedFileList) {
+        formData.append('file', selectedFile)
+    }
+    // formData.forEach((value, key) => console.log(value))
+    submit_form(message=formData)
 }
 
-function submit_form() {
-    let message = document.getElementById('write-message').value
-    fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/",
-                    data={'chat_hash': window.CHAT_HASH, 'sender': username, 'message_type': 'text', 'content': message}).then((message_list) => {
-                        window.chatSocket.send(JSON.stringify({"message": message, "sender": username}))
+function listContainerBtnFn() {
+    let inputElement = document.getElementById('fileid')
+    inputElement.click()
+    inputElement.addEventListener("change", handleFiles)
+}
+
+async function fetchAPIMessages(url, data) {
+    if (data instanceof FormData) {
+        // data.forEach((value, key) => console.log(value))
+        let csrftoken = getCookie('csrftoken')
+        const response = await fetch(url, {method: "POST", 
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            body: data})
+        const responseData = await response.json()
+        let MESSAGE_LIST = responseData['message_list']
+        return MESSAGE_LIST
+    }
+    else {
+        let csrftoken = getCookie('csrftoken')
+        const response = await fetch(url, {method: "POST", 
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(data)})
+        const responseData = await response.json()
+        let MESSAGE_LIST = responseData['message_list']
+        return MESSAGE_LIST
+    }
+}
+
+function submit_form(message=null) {
+    if (message === null) {
+        message = document.getElementById('write-message').value
+        fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/",
+            data={'chat_hash': window.CHAT_HASH, 'sender': username, 'message_type': 'text', 'content': message}).then((message_list) => {
+            window.chatSocket.send(JSON.stringify({"message": message, "sender": username}))
     })
+    }
+    else {
+        message.append("metadata", JSON.stringify({'chat_hash': window.CHAT_HASH, 'sender': username, 'message_type': 'documents'}))
+        // message.append("chat_hash", window.CHAT_HASH)
+        // message.append("sender", username)
+        fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/upload/",
+            data=message).then((message_list) => {
+            window.chatSocket.send(JSON.stringify({"message": message, "sender": username}))
+    })
+    }
 }

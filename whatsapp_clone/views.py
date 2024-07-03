@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.http import JsonResponse
 from . import forms
 from django.contrib import messages
@@ -9,8 +9,9 @@ from pymongo import MongoClient
 import datetime
 import json
 import hashlib
+import os
 
-client = MongoClient()
+client = MongoClient("mongodb+srv://agneya23:Brunoduma0*@whatsappclone.gpxwn9p.mongodb.net/?retryWrites=true&w=majority&appName=WhatsAppClone")
 db = client.whatsapp_clone_db
 users_collection = db.users
 chats_collection = db.chats
@@ -110,3 +111,17 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect("login_view")
+
+def upload_view(request, username):
+    if 'file' in request.FILES:
+        file = request.FILES['file']
+        metadata = json.loads(request.POST.get("metadata"))
+        if not os.path.exists("./uploaded_files/"):
+            os.mkdir("./uploaded_files/")
+        if not os.path.exists("./uploaded_files/"+metadata["chat_hash"]+"/"):
+            os.mkdir("./uploaded_files/"+metadata["chat_hash"]+"/")
+        with open("./uploaded_files/"+metadata["chat_hash"]+"/"+file.name, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+        # Add to mongodb the path to file etc.
+    return HttpResponse({"message_list": []})
