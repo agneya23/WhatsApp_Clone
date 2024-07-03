@@ -10,6 +10,7 @@ import datetime
 import json
 import hashlib
 import os
+from bson.objectid import ObjectId
 
 client = MongoClient("mongodb+srv://agneya23:Brunoduma0*@whatsappclone.gpxwn9p.mongodb.net/?retryWrites=true&w=majority&appName=WhatsAppClone")
 db = client.whatsapp_clone_db
@@ -36,7 +37,10 @@ def index(request, username):
             results = messages_collection.find(query, {'sender': 1, 'content': 1}).sort("created_at", 1)
             message_list = []
             for document in results:
-                message_list.append([document['sender'], document['content']])
+                try:
+                    message_list.append([document['sender'], document['content']])
+                except:
+                    pass
             data = {'message_list': message_list}
         else:
             name, participants = data_dict["name"], data_dict["participants"]
@@ -120,10 +124,18 @@ def upload_view(request, username):
             os.mkdir("./uploaded_files/")
         if not os.path.exists("./uploaded_files/"+metadata["chat_hash"]+"/"):
             os.mkdir("./uploaded_files/"+metadata["chat_hash"]+"/")
+        time = datetime.datetime.now()
+        data_dict_lst = []
         for filename in filename_lst:
+            data_dict = metadata
             file = request.FILES[filename]
             with open("./uploaded_files/"+metadata["chat_hash"]+"/"+filename, 'wb+') as destination:
                 for chunk in file.chunks():
                     destination.write(chunk)
-        # Add to mongodb the path to file etc.
+            data_dict['file_path'] = "./uploaded_files/"+metadata["chat_hash"]+"/"+filename
+            data_dict['created_at'] = time
+            data_dict['updated_at'] = time
+            data_dict['_id'] = ObjectId()
+            data_dict_lst.append(data_dict)
+        messages_collection.insert_many(data_dict_lst)
     return HttpResponse({"message_list": []})
