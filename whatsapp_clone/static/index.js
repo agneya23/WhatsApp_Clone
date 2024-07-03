@@ -27,11 +27,8 @@ let template = `
 
 <button id="plus-btn" type="button" onclick="listContainerFn()"><i class="fa-solid fa-plus" id="plus"></i></button>
 
-<form action="" enctype="multipart/form-data">
-    <input id='fileid' type='file' name='file' multiple hidden/>
-</form>
-
 <div id="listContainer">
+    <input id='fileid' type='file' name='file' multiple hidden/>
     <button class="listContainerBtn" onclick="listContainerBtnFn()"><i class="fa-regular fa-file"></i> <span>&ensp;Document</span></button>
     <button class="listContainerBtn" onclick="listContainerBtnFn()"><i class="fa-solid fa-photo-film"></i>  <span>Photos & Videos</span></button>
 </div>
@@ -140,7 +137,9 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("keydown2", (event) => {
     if (event.key == "Escape") {
         window.click_count = false
-        window.chatSocket.close()
+        if (window.chatSocket !== undefined) {
+            window.chatSocket.close()
+        }
     }
 })
 
@@ -207,7 +206,6 @@ function register_event_listener(chat) {
         }
         window.chatSocket.onclose = function(e) {
             chat.style.backgroundColor = "#ffffff"
-            console.error("Chat socket closed!")
         }
     })
     chat.addEventListener("mouseover", () => {
@@ -231,10 +229,13 @@ function register_event_listener(chat) {
 function handleFiles() {
     let selectedFileList = this.files
     let formData = new FormData()
+    let filename_lst = []
     for (let selectedFile of selectedFileList) {
-        formData.append('file', selectedFile)
+        filename_lst.push(selectedFile.name)
+        formData.append(selectedFile.name, selectedFile)
     }
-    // formData.forEach((value, key) => console.log(value))
+    formData.append('filename_lst', JSON.stringify(filename_lst))
+    // formData.forEach((key, value) => {console.log(key)})
     submit_form(message=formData)
 }
 
@@ -245,30 +246,25 @@ function listContainerBtnFn() {
 }
 
 async function fetchAPIMessages(url, data) {
+    let csrftoken = getCookie('csrftoken')
     if (data instanceof FormData) {
-        // data.forEach((value, key) => console.log(value))
-        let csrftoken = getCookie('csrftoken')
-        const response = await fetch(url, {method: "POST", 
-            headers: {
-                'X-CSRFToken': csrftoken
-            },
-            body: data})
-        const responseData = await response.json()
-        let MESSAGE_LIST = responseData['message_list']
-        return MESSAGE_LIST
+        headers = {
+            'X-CSRFToken': csrftoken
+        }
     }
     else {
-        let csrftoken = getCookie('csrftoken')
-        const response = await fetch(url, {method: "POST", 
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify(data)})
-        const responseData = await response.json()
-        let MESSAGE_LIST = responseData['message_list']
-        return MESSAGE_LIST
+        headers = {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        }
+        data = JSON.stringify(data)
     }
+    const response = await fetch(url, {method: "POST", 
+        headers: headers,
+        body: data})
+    const responseData = await response.json()
+    let MESSAGE_LIST = responseData['message_list']
+    return MESSAGE_LIST
 }
 
 function submit_form(message=null) {
@@ -281,8 +277,6 @@ function submit_form(message=null) {
     }
     else {
         message.append("metadata", JSON.stringify({'chat_hash': window.CHAT_HASH, 'sender': username, 'message_type': 'documents'}))
-        // message.append("chat_hash", window.CHAT_HASH)
-        // message.append("sender", username)
         fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/upload/",
             data=message).then((message_list) => {
             window.chatSocket.send(JSON.stringify({"message": message, "sender": username}))

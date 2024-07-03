@@ -113,15 +113,17 @@ def logout_view(request):
     return redirect("login_view")
 
 def upload_view(request, username):
-    if 'file' in request.FILES:
-        file = request.FILES['file']
+    if request.FILES:
+        filename_lst = json.loads(request.POST.get("filename_lst"))
         metadata = json.loads(request.POST.get("metadata"))
         if not os.path.exists("./uploaded_files/"):
             os.mkdir("./uploaded_files/")
         if not os.path.exists("./uploaded_files/"+metadata["chat_hash"]+"/"):
             os.mkdir("./uploaded_files/"+metadata["chat_hash"]+"/")
-        with open("./uploaded_files/"+metadata["chat_hash"]+"/"+file.name, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
+        for filename in filename_lst:
+            file = request.FILES[filename]
+            with open("./uploaded_files/"+metadata["chat_hash"]+"/"+filename, 'wb+') as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
         # Add to mongodb the path to file etc.
     return HttpResponse({"message_list": []})
