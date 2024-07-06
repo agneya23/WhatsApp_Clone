@@ -30,7 +30,10 @@ def index(request, username):
             results = messages_collection.find(query, {'sender': 1, 'content': 1}).sort("created_at", 1)
             message_list = []
             for document in results:
-                message_list.append([document['sender'], document['content']])
+                try:
+                    message_list.append([document['sender'], document['content']])
+                except:
+                    pass
             data = {'message_list': message_list}
         elif 'chat_hash' in data_dict:
             query = {"chat_hash": data_dict['chat_hash']}
@@ -127,7 +130,7 @@ def upload_view(request, username):
         time = datetime.datetime.now()
         data_dict_lst = []
         for filename in filename_lst:
-            data_dict = metadata
+            data_dict = metadata.copy()
             file = request.FILES[filename]
             with open("./uploaded_files/"+metadata["chat_hash"]+"/"+filename, 'wb+') as destination:
                 for chunk in file.chunks():

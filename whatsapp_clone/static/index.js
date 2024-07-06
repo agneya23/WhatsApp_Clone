@@ -29,8 +29,8 @@ let template = `
 
 <div id="listContainer">
     <input id='fileid' type='file' name='file' multiple hidden/>
-    <button class="listContainerBtn" onclick="listContainerBtnFn()"><i class="fa-regular fa-file"></i> <span>&ensp;Document</span></button>
-    <button class="listContainerBtn" onclick="listContainerBtnFn()"><i class="fa-solid fa-photo-film"></i>  <span>Photos & Videos</span></button>
+    <button class="listContainerBtn" onclick="listContainerBtnFn('Documents')"><i class="fa-regular fa-file"></i> <span>&ensp;Documents</span></button>
+    <button class="listContainerBtn" onclick="listContainerBtnFn('Photos & Videos')"><i class="fa-solid fa-photo-film"></i>  <span>Photos & Videos</span></button>
 </div>
 
 <input type="text" name="" id="write-message" placeholder="  Type a message">
@@ -50,6 +50,7 @@ let scroll = document.getElementById("scroll")
 window.click_count = false
 var message_list = []
 var selectedFileList = null
+var message_type_value = null
 
 function scrollDown() {
     const messages_scroll = document.querySelector('#message-scroll');
@@ -165,17 +166,6 @@ function listContainerFn() {
     }
 }
 
-async function getBinaryData(selectedFileList) {
-    let arrayBufferData = []
-    for (let selectedFile of selectedFileList) {
-        let binary_data = await selectedFile.arrayBuffer()
-        arrayBufferData.push(binary_data)
-    }
-    return new Promise((resolve, reject) => {
-        resolve(arrayBufferData)
-    })
-}
-
 function register_event_listener(chat) {
     chat.addEventListener("click", () => {
         if (window.click_count !== chat.innerText.split("\n\n")[1]) {
@@ -236,12 +226,14 @@ function handleFiles() {
     }
     formData.append('filename_lst', JSON.stringify(filename_lst))
     // formData.forEach((key, value) => {console.log(key)})
-    submit_form(message=formData)
+    submit_form(message=formData, value=message_type_value)
+    this.removeEventListener("change", handleFiles)
 }
 
-function listContainerBtnFn() {
+function listContainerBtnFn(value) {
     let inputElement = document.getElementById('fileid')
     inputElement.click()
+    message_type_value = value
     inputElement.addEventListener("change", handleFiles)
 }
 
@@ -267,7 +259,7 @@ async function fetchAPIMessages(url, data) {
     return MESSAGE_LIST
 }
 
-function submit_form(message=null) {
+function submit_form(message=null, value=null) {
     if (message === null) {
         message = document.getElementById('write-message').value
         fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/",
@@ -276,7 +268,7 @@ function submit_form(message=null) {
     })
     }
     else {
-        message.append("metadata", JSON.stringify({'chat_hash': window.CHAT_HASH, 'sender': username, 'message_type': 'documents'}))
+        message.append("metadata", JSON.stringify({'chat_hash': window.CHAT_HASH, 'sender': username, 'message_type': value}))
         fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/upload/",
             data=message).then((message_list) => {
             window.chatSocket.send(JSON.stringify({"message": message, "sender": username}))
