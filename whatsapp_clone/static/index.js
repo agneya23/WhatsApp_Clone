@@ -1,4 +1,4 @@
-let template = `
+let chat_history_template = `
 <div id="upbar">
     <div id="upbar-div">
         <i class="fa-solid fa-user-group fa-lg" id="icon"></i>
@@ -35,6 +35,22 @@ let template = `
 
 <input type="text" name="" id="write-message" placeholder="  Type a message">
 <input id="send" type="button" name="submit" value="Send" onclick="submit_form();">
+`
+
+file_upload_template = `
+<div id="upbar">
+    <div id="upbar-div">
+        <i class="fa-solid fa-user-group fa-lg" id="icon"></i>
+    </div>
+    <span id="chatname"><%= chat_name %></span>
+</div>
+
+<div id="file_upload">
+    <div id="filename">File Name</div>
+    <div id="file_preview">Preview</div>
+    <input type="text" name="" id="write-message-upload" placeholder="  Add a caption">
+    <input id="send-upload" type="button" name="submit" value="Send" onclick="submit_form(message=formData, value=message_type_value);">
+</div>
 `
 
 var chat_lst = document.querySelectorAll(".chat")
@@ -182,7 +198,7 @@ function register_event_listener(chat) {
         )
         fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/",
                         data={'chat_hash': CHAT_HASH}).then((message_list) => {
-                            chat_history.innerHTML = ejs.render(template, {chat_name: chat.innerText.split("\n\n")[0], messagelist: message_list, username:username})
+                            chat_history.innerHTML = ejs.render(chat_history_template, {chat_name: chat.innerText.split("\n\n")[0], messagelist: message_list, username:username})
                             scrollDown()
                         })
         // let plus_btn = document.getElementById("plus-btn")
@@ -190,7 +206,7 @@ function register_event_listener(chat) {
         window.chatSocket.onmessage = function(e) {
             fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/",
                         data={'chat_hash': CHAT_HASH}).then((message_list) => {
-                            chat_history.innerHTML = ejs.render(template, {chat_name: chat.innerText.split("\n\n")[0], messagelist: message_list, username:username})
+                            chat_history.innerHTML = ejs.render(chat_history_template, {chat_name: chat.innerText.split("\n\n")[0], messagelist: message_list, username:username})
                             scrollDown()
                         })
         }
@@ -226,7 +242,8 @@ function handleFiles() {
     }
     formData.append('filename_lst', JSON.stringify(filename_lst))
     // formData.forEach((key, value) => {console.log(key)})
-    submit_form(message=formData, value=message_type_value)
+    chat_history.innerHTML = ejs.render(file_upload_template, {chat_name: chat.innerText.split("\n\n")[0], filelist: filename_lst, formData: formData, message_type_value: message_type_value})
+    // submit_form(message=formData, value=message_type_value)
     this.removeEventListener("change", handleFiles)
 }
 

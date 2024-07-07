@@ -415,3 +415,46 @@ a, a:visited, a:hover, a:active {
 .listContainerBtn:hover {
     background-color: #f4f4f4d7;
 }
+
+#file_upload {
+    background-color: #E9EDEF;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    height: 92.3vh;
+}
+
+#filename {
+    width: 100%;
+}
+
+#file_preview {
+    background-color: #F0F2F5;
+    height: 300px;
+    width: 400px;
+}
+
+#write-message-upload {
+    height: 40px;
+    width: 700px;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+}
+
+#send-upload {
+    background-color: white;
+    border-radius: 5px;
+    border-width: 0px;
+    color: black;
+    height: 40px;
+    margin-left: 10px;
+    width: 65px;
+    transition: color 0.2s, background-color 0.2s;
+    cursor: pointer;
+}
+
+#send-upload:hover {
+    background-color: #00a857e3;
+    color: white;
+}
