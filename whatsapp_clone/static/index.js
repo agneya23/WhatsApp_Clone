@@ -47,11 +47,11 @@ file_upload_template = `
 
 <div id="file_upload">
     <div id="filename">
-        <div style="width: 20%">
-            <i class="fa-solid fa-xmark" style="margin-left: 20px"></i>
+        <div style="width: 1.5%">
+            <i class="fa-solid fa-xmark" style="margin-left: 15px"></i>
         </div>
-        <div style="width: 80%">
-            <p style="margin: 0px; position: absolute; left: 62%;">File Name</p>
+        <div style="width: 98.5%; display: flex; justify-content: center;">
+            <p id="filename_display" style="margin: 0px;"> <%= filelist[idx][0] %> </p>
         </div>
     </div>
     <div id="file_preview">
@@ -62,14 +62,14 @@ file_upload_template = `
     <input id="send-upload" type="button" name="submit" value="Send" onclick="submit_form(message=formData, value=message_type_value);">
     <div id="file-buttons">
         <% for (let item of filelist) { %>
-            <% if (item[2] === "docx") { %>
-                <button type="button" class="file-button"> <i class="fa-regular fa-file-word fa-2x"></i> </button>
-            <% } else if (item[2] === "pdf") { %>
-                <button type="button" class="file-button"> <i class="fa-regular fa-file-pdf fa-2x"></i> </button>
-            <% } else if (item[2] === "txt") { %>
-                <button type="button" class="file-button"> <i class="fa-regular fa-file-lines fa-2x"></i> </button>
+            <% if (item[1] === "docx") { %>
+                <div class="file-div"> <p hidden><%= item[0] %></p> <i class="fa-regular fa-file-word fa-2x"></i> </div>
+            <% } else if (item[1] === "pdf") { %>
+                <div class="file-div"> <p hidden><%= item[0] %></p> <i class="fa-regular fa-file-pdf fa-2x"></i> </div>
+            <% } else if (item[1] === "txt") { %>
+                <div class="file-div"> <p hidden><%= item[0] %></p> <i class="fa-regular fa-file-lines fa-2x"></i> </div>
             <% } else {%>
-                <button type="button" class="file-button"> <i class="fa-regular fa-file fa-2x"></i> </button>
+                <div class="file-div"> <p hidden><%= item[0] %></p> <i class="fa-regular fa-file fa-2x"></i> </div>
             <% } %>
         <% } %>
     </div>
@@ -90,6 +90,9 @@ window.click_count = false
 var message_list = []
 var selectedFileList = null
 var message_type_value = null
+var file_div = null
+var filename_display = null
+var cur_file_div_ele = null
 
 function scrollDown() {
     const messages_scroll = document.querySelector('#message-scroll');
@@ -255,21 +258,43 @@ function register_event_listener(chat) {
     })
 }
 
+function register_file_upload_event_listener(file_div_ele) {
+    file_div_ele.addEventListener("click", () => {
+        cur_file_div_ele.style.borderColor = "#D1D7DB"
+        file_div_ele.style.borderColor = "#00a884"
+        document.getElementById("filename_display").innerText = file_div_ele.getElementsByTagName("p")[0].innerText
+        filename_display = file_div_ele.getElementsByTagName("p")[0].innerText
+        cur_file_div_ele = file_div_ele
+    })
+}
+
+function file_div_highlight() {
+    for (let file_div_ele of file_div) {
+        if (file_div_ele.getElementsByTagName("p")[0].innerText === filename_display) {
+            file_div_ele.style.borderColor = "#00a884"
+            cur_file_div_ele = file_div_ele
+        }
+        register_file_upload_event_listener(file_div_ele)
+    }
+}
+
 function handleFiles() {
     let selectedFileList = this.files
     let formData = new FormData()
     let filename_lst = []
     let fileinfo_lst = []
     for (let selectedFile of selectedFileList) {
-        // console.log(selectedFile)
         filename_lst.push(selectedFile.name)
-        fileinfo_lst.push([selectedFile.name, selectedFile.size, selectedFile.name.split(".").pop()])
+        fileinfo_lst.push([selectedFile.name, selectedFile.name.split(".").pop()])
         formData.append(selectedFile.name, selectedFile)
     }
-    // console.log(fileinfo_lst)
     formData.append('filename_lst', JSON.stringify(filename_lst))
     // formData.forEach((key, value) => {console.log(key)})
-    chat_history.innerHTML = ejs.render(file_upload_template, {chat_name: chat.innerText.split("\n\n")[0], filelist: fileinfo_lst, formData: formData, message_type_value: message_type_value})
+    chat_history.innerHTML = ejs.render(file_upload_template, {chat_name: chat.innerText.split("\n\n")[0], filelist: fileinfo_lst, message_type_value: message_type_value, idx: 0})
+    filename_display = document.getElementById("filename_display").innerText
+    file_div = document.getElementsByClassName("file-div")
+    file_div_highlight()
+
     // submit_form(message=formData, value=message_type_value)
     this.removeEventListener("change", handleFiles)
 }
