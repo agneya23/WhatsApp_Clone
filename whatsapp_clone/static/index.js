@@ -34,7 +34,7 @@ let chat_history_template = `
 </div>
 
 <input type="text" name="" id="write-message" placeholder="  Type a message">
-<input id="send" type="button" name="submit" value="Send" onclick="submit_form();">
+<input id="send" type="button" name="submit" value="Send" onclick="submit_form_trigger(0);">
 `
 
 file_upload_template = `
@@ -59,17 +59,17 @@ file_upload_template = `
         <p>No preview available</p>
     </div>
     <input type="text" name="" id="write-message-upload" placeholder="  Add a caption">
-    <input id="send-upload" type="button" name="submit" value="Send" onclick="submit_form(message=formData, value=message_type_value);">
+    <input id="send-upload" type="button" name="submit" value="Send" onclick="submit_form_trigger(1);">
     <div id="file-buttons">
-        <% for (let item of filelist) { %>
-            <% if (item[1] === "docx") { %>
-                <div class="file-div"> <p hidden><%= item[0] %></p> <i class="fa-regular fa-file-word fa-2x"></i> </div>
-            <% } else if (item[1] === "pdf") { %>
-                <div class="file-div"> <p hidden><%= item[0] %></p> <i class="fa-regular fa-file-pdf fa-2x"></i> </div>
-            <% } else if (item[1] === "txt") { %>
-                <div class="file-div"> <p hidden><%= item[0] %></p> <i class="fa-regular fa-file-lines fa-2x"></i> </div>
+        <% for (let i = 0; i < filelist.length; i++) { %>
+            <% if (filelist[i][1] === "docx") { %>
+                <div class="file-div"> <p hidden><%= filelist[i][0] %></p> <span hidden><%= captionlist[i] %></span> <i class="fa-regular fa-file-word fa-2x"></i> </div>
+            <% } else if (filelist[i][1] === "pdf") { %>
+                <div class="file-div"> <p hidden><%= filelist[i][0] %></p> <span hidden><%= captionlist[i] %></span> <i class="fa-regular fa-file-pdf fa-2x"></i> </div>
+            <% } else if (filelist[i][1] === "txt") { %>
+                <div class="file-div"> <p hidden><%= filelist[i][0] %></p> <span hidden><%= captionlist[i] %></span> <i class="fa-regular fa-file-lines fa-2x"></i> </div>
             <% } else {%>
-                <div class="file-div"> <p hidden><%= item[0] %></p> <i class="fa-regular fa-file fa-2x"></i> </div>
+                <div class="file-div"> <p hidden><%= filelist[i][0] %></p> <span hidden><%= captionlist[i] %></span> <i class="fa-regular fa-file fa-2x"></i> </div>
             <% } %>
         <% } %>
     </div>
@@ -93,6 +93,9 @@ var message_type_value = null
 var file_div = null
 var filename_display = null
 var cur_file_div_ele = null
+var caption_ele = null
+var caption_ele_content = null
+var formData = null
 
 function scrollDown() {
     const messages_scroll = document.querySelector('#message-scroll');
@@ -264,7 +267,15 @@ function register_file_upload_event_listener(file_div_ele) {
         file_div_ele.style.borderColor = "#00a884"
         document.getElementById("filename_display").innerText = file_div_ele.getElementsByTagName("p")[0].innerText
         filename_display = file_div_ele.getElementsByTagName("p")[0].innerText
+        caption_ele.value = file_div_ele.getElementsByTagName("span")[0].innerText
         cur_file_div_ele = file_div_ele
+    })
+}
+
+function caption_ele_event_listener() {
+    caption_ele.addEventListener("keyup", () => {
+        caption_ele_content = caption_ele.value
+        cur_file_div_ele.getElementsByTagName("span")[0].innerText = caption_ele_content
     })
 }
 
@@ -276,11 +287,13 @@ function file_div_highlight() {
         }
         register_file_upload_event_listener(file_div_ele)
     }
+    caption_ele = document.getElementById("write-message-upload")
+    caption_ele_event_listener()
 }
 
 function handleFiles() {
     let selectedFileList = this.files
-    let formData = new FormData()
+    formData = new FormData()
     let filename_lst = []
     let fileinfo_lst = []
     for (let selectedFile of selectedFileList) {
@@ -290,7 +303,7 @@ function handleFiles() {
     }
     formData.append('filename_lst', JSON.stringify(filename_lst))
     // formData.forEach((key, value) => {console.log(key)})
-    chat_history.innerHTML = ejs.render(file_upload_template, {chat_name: chat.innerText.split("\n\n")[0], filelist: fileinfo_lst, message_type_value: message_type_value, idx: 0})
+    chat_history.innerHTML = ejs.render(file_upload_template, {chat_name: chat.innerText.split("\n\n")[0], filelist: fileinfo_lst, idx: 0, captionlist: []})
     filename_display = document.getElementById("filename_display").innerText
     file_div = document.getElementsByClassName("file-div")
     file_div_highlight()
@@ -328,6 +341,15 @@ async function fetchAPIMessages(url, data) {
     return MESSAGE_LIST
 }
 
+function submit_form_trigger(flag) {
+    if (flag == 1) {
+        submit_form(message=formData, value=message_type_value)
+    }
+    else {
+        submit_form()
+    }
+}
+
 function submit_form(message=null, value=null) {
     if (message === null) {
         message = document.getElementById('write-message').value
@@ -337,6 +359,11 @@ function submit_form(message=null, value=null) {
     })
     }
     else {
+        let caption_list = []
+        for (let file_div_ele of file_div) {
+            caption_list.push(file_div_ele.getElementsByTagName("span")[0].innerText)
+        }
+        message.append("caption_lst", JSON.stringify(caption_list))
         message.append("metadata", JSON.stringify({'chat_hash': window.CHAT_HASH, 'sender': username, 'message_type': value}))
         fetchAPIMessages(url="http://127.0.0.1:8000/whatsapp_clone/chat/"+username+"/upload/",
             data=message).then((message_list) => {

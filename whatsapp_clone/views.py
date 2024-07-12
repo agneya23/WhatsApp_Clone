@@ -37,13 +37,16 @@ def index(request, username):
             data = {'message_list': message_list}
         elif 'chat_hash' in data_dict:
             query = {"chat_hash": data_dict['chat_hash']}
-            results = messages_collection.find(query, {'sender': 1, 'content': 1}).sort("created_at", 1)
+            results = messages_collection.find(query, {'sender': 1, 'content': 1, 'message_type': 1, "file_path": 1, "caption": 1}).sort("created_at", 1)
             message_list = []
             for document in results:
-                try:
-                    message_list.append([document['sender'], document['content']])
-                except:
-                    pass
+                if document['message_type'] == "text":
+                    message_list.append([document['sender'], document['content'], document['message_type']])
+                else:
+                    if "caption" in document:
+                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], document['caption']])
+                    else:
+                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type']])
             data = {'message_list': message_list}
         else:
             name, participants = data_dict["name"], data_dict["participants"]
@@ -122,6 +125,7 @@ def logout_view(request):
 def upload_view(request, username):
     if request.FILES:
         filename_lst = json.loads(request.POST.get("filename_lst"))
+        caption_lst = json.loads(request.POST.get("caption_lst"))
         metadata = json.loads(request.POST.get("metadata"))
         if not os.path.exists("./uploaded_files/"):
             os.mkdir("./uploaded_files/")
@@ -129,7 +133,7 @@ def upload_view(request, username):
             os.mkdir("./uploaded_files/"+metadata["chat_hash"]+"/")
         time = datetime.datetime.now()
         data_dict_lst = []
-        for filename in filename_lst:
+        for filename, caption in zip(filename_lst, caption_lst):
             data_dict = metadata.copy()
             file = request.FILES[filename]
             with open("./uploaded_files/"+metadata["chat_hash"]+"/"+filename, 'wb+') as destination:
@@ -139,6 +143,7 @@ def upload_view(request, username):
             data_dict['created_at'] = time
             data_dict['updated_at'] = time
             data_dict['_id'] = ObjectId()
+            data_dict['caption'] = caption
             data_dict_lst.append(data_dict)
         messages_collection.insert_many(data_dict_lst)
-    return HttpResponse({"message_list": []})
+    return JsonResponse({"message_list": []})
