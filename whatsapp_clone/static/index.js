@@ -10,16 +10,35 @@ let chat_history_template = `
     <ul id="message-scroll">
         <% for (let message of messagelist) { %>
             <% if (username === message[0]) { %>
-                <div class="chat-message" style="margin-left: auto;background-color:#D9FDD3;text-align:right;margin-right:20px">
-                    <span id="message_sender" style="background-color:#D9FDD3;display:block;text-align: left;height: fit-content;margin-bottom:3px">~<%= message[0] %></span>
-                    <span id="message" style="background-color:#D9FDD3;display:block;text-align: left; height: fit-content"><%= message[1] %></span>
-                </div>
+                <% if ('text' === message[2]) { %>
+                    <div class="chat-message" style="margin-left: auto;background-color:#D9FDD3;text-align:right;margin-right:20px">
+                        <span id="message_sender" style="background-color:#D9FDD3;display:block;text-align: left;height: fit-content;margin-bottom:3px">~<%= message[0] %></span>
+                        <span id="message" style="background-color:#D9FDD3;display:block;text-align: left; height: fit-content"><%= message[1] %></span>
+                    </div>
+                <% } else { %>
+                    <div class="chat-message" style="margin-left: auto;background-color:#D9FDD3;text-align:right;margin-right:20px">
+                        <span id="message_sender" style="background-color:#D9FDD3;display:block;text-align: left;height: fit-content;margin-bottom:3px">~<%= message[0] %></span>
+                        <div class="chat-message-file">
+                            <div><i class="fa-solid fa-file fa-xl"></i></div>
+                            <span id="message" style="background-color:#d1f4cc;display:block;text-align: left; height: fit-content; margin-left: 10px; margin-right: 25px"><%= message[1] %> </span>
+                            <div><i class="fa-regular fa-circle-down fa-xl"></i></div>
+                        </div>
+                    </div>
+                <% } %>
             <% } else { %>
-                <div class="chat-message">
-                    <span id="message_sender">~<%= message[0] %></span>
-                    <br>
-                    <span id="message"><%= message[1] %></span>
-                </div>
+                <% if ('text' === message[2]) { %>
+                    <div class="chat-message">
+                        <span id="message_sender">~<%= message[0] %></span>
+                        <br>
+                        <span id="message"><%= message[1] %></span>
+                    </div>
+                <% } else { %>
+                    <div class="chat-message">
+                        <span id="message_sender">~<%= message[0] %></span>
+                        <br>
+                        <span id="message"><%= message[1] %></span>
+                    </div>
+                <% } %>
             <% } %>
         <% } %>
     </ul>

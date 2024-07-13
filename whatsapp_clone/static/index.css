@@ -499,3 +499,12 @@ a, a:visited, a:hover, a:active {
 .file-div:focus {
     border-color: #00a884;
 }
+
+.chat-message-file {
+    background-color:#d1f4cc;
+    min-height: 30px;
+    height: auto;
+    display: flex;
+    border-radius: 5px;
+    padding: 10px;
+}

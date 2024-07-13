@@ -27,13 +27,16 @@ def index(request, username):
             data_dict["updated_at"] = datetime.datetime.now()
             messages_collection.insert_one(data_dict)
             query = {"chat_hash": data_dict['chat_hash']}
-            results = messages_collection.find(query, {'sender': 1, 'content': 1}).sort("created_at", 1)
+            results = messages_collection.find(query, {'sender': 1, 'content': 1, 'message_type': 1, "file_path": 1, "caption": 1}).sort("created_at", 1)
             message_list = []
             for document in results:
-                try:
-                    message_list.append([document['sender'], document['content']])
-                except:
-                    pass
+                if document['message_type'] == "text":
+                    message_list.append([document['sender'], document['content'], document['message_type']])
+                else:
+                    if "caption" in document:
+                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], document['caption']])
+                    else:
+                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], None])
             data = {'message_list': message_list}
         elif 'chat_hash' in data_dict:
             query = {"chat_hash": data_dict['chat_hash']}
@@ -46,7 +49,7 @@ def index(request, username):
                     if "caption" in document:
                         message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], document['caption']])
                     else:
-                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type']])
+                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], None])
             data = {'message_list': message_list}
         else:
             name, participants = data_dict["name"], data_dict["participants"]
