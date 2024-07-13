@@ -18,11 +18,14 @@ let chat_history_template = `
                 <% } else { %>
                     <div class="chat-message" style="margin-left: auto;background-color:#D9FDD3;text-align:right;margin-right:20px">
                         <span id="message_sender" style="background-color:#D9FDD3;display:block;text-align: left;height: fit-content;margin-bottom:3px">~<%= message[0] %></span>
-                        <div class="chat-message-file">
-                            <div><i class="fa-solid fa-file fa-xl"></i></div>
+                        <div class="chat-message-file" style="background-color:#d1f4cc">
+                            <div><i class="fa-regular fa-file fa-xl"></i></div>
                             <span id="message" style="background-color:#d1f4cc;display:block;text-align: left; height: fit-content; margin-left: 10px; margin-right: 25px"><%= message[1] %> </span>
                             <div><i class="fa-regular fa-circle-down fa-xl"></i></div>
                         </div>
+                        <% if (message[3] !== null) { %>
+                            <span id="caption" style="background-color:#D9FDD3;display:block;text-align: left; height: fit-content"><%= message[3] %></span>
+                        <% } %>
                     </div>
                 <% } %>
             <% } else { %>
@@ -35,8 +38,14 @@ let chat_history_template = `
                 <% } else { %>
                     <div class="chat-message">
                         <span id="message_sender">~<%= message[0] %></span>
-                        <br>
-                        <span id="message"><%= message[1] %></span>
+                        <div class="chat-message-file" style="background-color:#f5f6f6">
+                            <div><i class="fa-regular fa-file fa-xl"></i></div>
+                            <span id="message" style="background-color:#f5f6f6;display:block;text-align: left; height: fit-content; margin-left: 10px; margin-right: 25px"><%= message[1] %> </span>
+                            <div><i class="fa-regular fa-circle-down fa-xl"></i></div>
+                        </div>
+                        <% if (message[3] !== null) { %>
+                            <span id="caption" style="display:block;text-align: left; height: fit-content"><%= message[3] %></span>
+                        <% } %>
                     </div>
                 <% } %>
             <% } %>

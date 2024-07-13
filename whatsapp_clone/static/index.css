@@ -315,6 +315,12 @@ body {
     font-size: 85%;
 }
 
+#caption {
+    background-color: white;
+    color: black;
+    font-size: 85%;
+}
+
 #new_chat {
     background-color: #F0F2F5;
     border: none;
@@ -501,7 +507,7 @@ a, a:visited, a:hover, a:active {
 }
 
 .chat-message-file {
-    background-color:#d1f4cc;
+    background-color:white;
     min-height: 30px;
     height: auto;
     display: flex;
