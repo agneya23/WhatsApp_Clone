@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, HttpResponse
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from . import forms
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -34,9 +34,9 @@ def index(request, username):
                     message_list.append([document['sender'], document['content'], document['message_type']])
                 else:
                     if "caption" in document:
-                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], document['caption']])
+                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], document['caption'], document['file_path'].split('/')[-2]])
                     else:
-                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], None])
+                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], None, document['file_path'].split('/')[-2]])
             data = {'message_list': message_list}
         elif 'chat_hash' in data_dict:
             query = {"chat_hash": data_dict['chat_hash']}
@@ -47,9 +47,9 @@ def index(request, username):
                     message_list.append([document['sender'], document['content'], document['message_type']])
                 else:
                     if "caption" in document:
-                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], document['caption']])
+                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], document['caption'], document['file_path'].split('/')[-2]])
                     else:
-                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], None])
+                        message_list.append([document['sender'], document['file_path'].split('/')[-1], document['message_type'], None, document['file_path'].split('/')[-2]])
             data = {'message_list': message_list}
         else:
             name, participants = data_dict["name"], data_dict["participants"]
@@ -121,10 +121,12 @@ def login_view(request):
                 messages.add_message(request, messages.ERROR, "Either username or password entered is incorrect")
     return render(request, "whatsapp_clone/login.html", context)
 
+@login_required(login_url="/whatsapp_clone/login/")
 def logout_view(request):
     logout(request)
     return redirect("login_view")
 
+@login_required(login_url="/whatsapp_clone/login/")
 def upload_view(request, username):
     if request.FILES:
         filename_lst = json.loads(request.POST.get("filename_lst"))
@@ -150,3 +152,8 @@ def upload_view(request, username):
             data_dict_lst.append(data_dict)
         messages_collection.insert_many(data_dict_lst)
     return JsonResponse({"message_list": []})
+
+@login_required(login_url="/whatsapp_clone/login/")
+def download_view(request):
+    data_dict = json.loads(request.body)
+    return FileResponse(open("./uploaded_files/{}/{}".format(data_dict['chat_hash'], data_dict['file_name']), "rb"), as_attachment=True)

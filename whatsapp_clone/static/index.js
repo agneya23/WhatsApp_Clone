@@ -18,11 +18,13 @@ let chat_history_template = `
                 <% } else { %>
                     <div class="chat-message" style="margin-left: auto;background-color:#D9FDD3;text-align:right;margin-right:20px">
                         <span id="message_sender" style="background-color:#D9FDD3;display:block;text-align: left;height: fit-content;margin-bottom:3px">~<%= message[0] %></span>
-                        <div class="chat-message-file" style="background-color:#d1f4cc">
-                            <div><i class="fa-regular fa-file fa-xl"></i></div>
-                            <span id="message" style="background-color:#d1f4cc;display:block;text-align: left; height: fit-content; margin-left: 10px; margin-right: 25px"><%= message[1] %> </span>
-                            <div><i class="fa-regular fa-circle-down fa-xl"></i></div>
-                        </div>
+                        <button class="download-btn" type="button" onclick="downloadFn('<%= message[1] %>', '<%= message[4] %>')">
+                            <div class="chat-message-file" style="background-color:#d1f4cc">
+                                <div><i class="fa-regular fa-file fa-xl"></i></div>
+                                <span id="message" style="font-size: 13.5px;background-color:#d1f4cc;display:block;text-align: left; height: fit-content; margin-left: 10px; margin-right: 25px"><%= message[1] %> </span>
+                                <div><i class="fa-regular fa-circle-down fa-xl"></i></div>
+                            </div>
+                        </button>
                         <% if (message[3] !== null) { %>
                             <span id="caption" style="background-color:#D9FDD3;display:block;text-align: left; height: fit-content"><%= message[3] %></span>
                         <% } %>
@@ -32,17 +34,18 @@ let chat_history_template = `
                 <% if ('text' === message[2]) { %>
                     <div class="chat-message">
                         <span id="message_sender">~<%= message[0] %></span>
-                        <br>
                         <span id="message"><%= message[1] %></span>
                     </div>
                 <% } else { %>
                     <div class="chat-message">
                         <span id="message_sender">~<%= message[0] %></span>
-                        <div class="chat-message-file" style="background-color:#f5f6f6">
-                            <div><i class="fa-regular fa-file fa-xl"></i></div>
-                            <span id="message" style="background-color:#f5f6f6;display:block;text-align: left; height: fit-content; margin-left: 10px; margin-right: 25px"><%= message[1] %> </span>
-                            <div><i class="fa-regular fa-circle-down fa-xl"></i></div>
-                        </div>
+                        <button class="download-btn" type="button" onclick="downloadFn('<%= message[1] %>', '<%= message[4] %>')">
+                            <div class="chat-message-file" style="background-color:#f5f6f6">
+                                <div><i class="fa-regular fa-file fa-xl"></i></div>
+                                <span id="message" style="font-size: 13.5px;background-color:#f5f6f6;display:block;text-align: left; height: fit-content; margin-left: 10px; margin-right: 25px"><%= message[1] %> </span>
+                                <div><i class="fa-regular fa-circle-down fa-xl"></i></div>
+                            </div>
+                        </button>
                         <% if (message[3] !== null) { %>
                             <span id="caption" style="display:block;text-align: left; height: fit-content"><%= message[3] %></span>
                         <% } %>
@@ -179,6 +182,18 @@ function getCookie(name) {
     return cookieValue;
 }
 
+async function downloadFn(file_name, chat_hash) {
+    let csrftoken = getCookie('csrftoken')
+    const response = await fetch("http://127.0.0.1:8000/whatsapp_clone/download/", {method: "POST", 
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrftoken
+                                },
+                                body: JSON.stringify({'file_name': file_name, 'chat_hash': chat_hash})})
+    const response_data = await response.json()
+    // console.log(response_data)
+}
+
 
 async function fetchFn(url, data) {
     let csrftoken = getCookie('csrftoken')
@@ -241,11 +256,11 @@ function listContainerFn() {
 
 function register_event_listener(chat) {
     chat.addEventListener("click", () => {
-        if (window.click_count !== chat.innerText.split("\n\n")[1]) {
+        if (window.click_count !== chat.getElementsByTagName("p")[1].innerText) {
             document.dispatchEvent(new KeyboardEvent('keydown2', {'key': 'Escape'}))
         }
         chat.style.backgroundColor = "#F0F2F5"
-        window.CHAT_HASH = chat.innerText.split("\n\n")[1]
+        window.CHAT_HASH = chat.getElementsByTagName("p")[1].innerText
         window.click_count = window.CHAT_HASH
         window.chatSocket = new WebSocket(
             "ws://"
@@ -272,7 +287,7 @@ function register_event_listener(chat) {
         }
     })
     chat.addEventListener("mouseover", () => {
-        if (window.click_count === chat.innerText.split("\n\n")[1]) {
+        if (window.click_count === chat.getElementsByTagName("p")[1].innerText) {
             chat.style.backgroundColor = "#F0F2F5"
         }
         else {
@@ -280,7 +295,7 @@ function register_event_listener(chat) {
         }
     })
     chat.addEventListener("mouseout", () => {
-        if (window.click_count === chat.innerText.split("\n\n")[1]) {
+        if (window.click_count === chat.getElementsByTagName("p")[1].innerText) {
             chat.style.backgroundColor = "#F0F2F5"
         }
         else {
