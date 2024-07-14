@@ -12,7 +12,7 @@ import hashlib
 import os
 from bson.objectid import ObjectId
 
-client = MongoClient("mongodb+srv://agneya23:Brunoduma0*@whatsappclone.gpxwn9p.mongodb.net/?retryWrites=true&w=majority&appName=WhatsAppClone")
+client = MongoClient("")
 db = client.whatsapp_clone_db
 users_collection = db.users
 chats_collection = db.chats
